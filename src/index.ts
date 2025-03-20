@@ -15,9 +15,17 @@ import { Transformer } from "./transforming/transformer"
     })
 
     const response = await client.fetch({ url: "https://deetlist.com/dragoncity/events/race/" })
-
-
     const parser = response.asHtmlParser()
+
+    await parser.extractFirst({
+        query: "#profile",
+        model: new HtmlParsingModel({
+            title: {
+                query: "teste",
+                extractor: extractInnerText
+            }
+        })
+    })
 
     // const parser = await HtmlParser.loadFile("examples/deetlist-heroic-races.html")
     
