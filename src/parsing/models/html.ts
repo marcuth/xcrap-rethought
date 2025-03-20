@@ -20,6 +20,7 @@ export type ExtractorFunction = (element: HTMLElement) => string | Promise<strin
 
 export type HtmlParsingModelBaseValue = {
     query?: string
+    default?: string | string[] | null
     isGroup?: boolean
     extractor: ExtractorFunction
 }
@@ -59,7 +60,7 @@ export class HtmlParsingModel implements ParsingModel {
         return data
     }
 
-    protected async parseBaseValue(value: HtmlParsingModelBaseValue, root: HTMLElement): Promise<string[] | string> {
+    protected async parseBaseValue(value: HtmlParsingModelBaseValue, root: HTMLElement): Promise<string[] | string | null> {
         if (value.isGroup) {
             if (!value.query) {
                 throw new Error("Group value must have a 'query'")
@@ -74,10 +75,14 @@ export class HtmlParsingModel implements ParsingModel {
             const element = value.query ? root.querySelector(value.query) : root
 
             if (!element) {
-                throw new HTMLElementNotFoundError(value.query)
+                if (value.default === undefined) {
+                    throw new HTMLElementNotFoundError(value.query)
+                }
+
+                return value.default
             }
 
-            return value.extractor(element)
+            return await value.extractor(element)
         }
     }
 
