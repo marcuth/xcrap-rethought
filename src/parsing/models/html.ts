@@ -1,6 +1,6 @@
 import htmlParser, { HTMLElement } from "node-html-parser"
 
-import { HTMLElementNotFoundError } from "../errors"
+import { GroupQueryError, HTMLElementNotFoundError } from "../errors"
 import { ParsingModel } from "./interface"
 
 export type HtmlParsingModelResultData<T> = {
@@ -63,7 +63,7 @@ export class HtmlParsingModel implements ParsingModel {
     protected async parseBaseValue(value: HtmlParsingModelBaseValue, root: HTMLElement): Promise<string[] | string | null> {
         if (value.isGroup) {
             if (!value.query) {
-                throw new Error("Group value must have a 'query'")
+                throw new GroupQueryError()
             }
 
             const elements = root.querySelectorAll(value.query)
