@@ -1,6 +1,6 @@
 import htmlParser, { HTMLElement } from "node-html-parser"
 
-import { NotFoundHTMLElement } from "../errors"
+import { HTMLElementNotFoundError } from "../errors"
 import { ParsingModel } from "./interface"
 
 export type HtmlParsingModelResultData<T> = {
@@ -74,7 +74,7 @@ export class HtmlParsingModel implements ParsingModel {
             const element = value.query ? root.querySelector(value.query) : root
 
             if (!element) {
-                throw new NotFoundHTMLElement(value.query)
+                throw new HTMLElementNotFoundError(value.query)
             }
 
             return value.extractor(element)
@@ -92,7 +92,7 @@ export class HtmlParsingModel implements ParsingModel {
             const element = root.querySelector(value.query)
 
             if (!element) {
-                throw new NotFoundHTMLElement(value.query)
+                throw new HTMLElementNotFoundError(value.query)
             }
 
             const source = value.extractor ? await value.extractor(element) : element.outerHTML

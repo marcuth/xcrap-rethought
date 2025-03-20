@@ -2,40 +2,40 @@ import { HTMLElement } from "node-html-parser"
 
 function extractInnerText(element: HTMLElement): string {
     const text = element.innerText
-    return text ?? ""
+    return text
 }
 
 function extractTextContent(element: HTMLElement): string {
     const text = element.textContent
-    return text ?? ""
+    return text
 }
 
 function extractText(element: HTMLElement): string {
     const text = element.text
-    return text ?? ""
+    return text
 }
 
 function extractInnerHtml(element: HTMLElement): string {
     const html = element.innerHTML
-    return html ?? ""
+    return html
 }
 
-const extractAttribute = (name: string) => (element: HTMLElement): string => {
+const extractAttribute = (name: string) => (element: HTMLElement): string | undefined => {
     const attribute = element.attrs[name]
-    return attribute ?? ""
+    return attribute
 }
 
-const extractValue = (element: HTMLElement): string => {
+const extractValue = (element: HTMLElement): string | undefined => {
     const value = element.getAttribute("value")
-    return value ?? ""
+    return value
 }
 
 function extractOuterHtml(element: HTMLElement): string {
-    return element.outerHTML ?? ""
+    return element.outerHTML
 }
 
 function extractTagName(element: HTMLElement): string {
-    return element.tagName ?? ""
+    return element.tagName
 }
 
 function extractClassList(element: HTMLElement): string {
@@ -43,15 +43,15 @@ function extractClassList(element: HTMLElement): string {
 }
 
 function extractId(element: HTMLElement): string {
-    return element.id ?? ""
+    return element.id
 }
 
-function extractStyle(element: HTMLElement): string {
-    return element.getAttribute("style") ?? ""
+function extractStyle(element: HTMLElement): string | undefined {
+    return element.getAttribute("style")
 }
 
-function extractRole(element: HTMLElement): string {
-    return element.getAttribute("role") ?? ""
+function extractRole(element: HTMLElement): string | undefined {
+    return element.getAttribute("role")
 }
 
 const extractHref = extractAttribute("href")

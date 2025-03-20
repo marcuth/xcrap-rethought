@@ -1,0 +1,10 @@
+export const defaultMinimumFractionDigits = 2
+
+export const defaultFormattedNumberSuffixes = {
+    k: 1_000,
+    m: 1_000_000,
+    b: 1_000_000_000,
+    t: 1_000_000_000_000,
+    q: 1_000_000_000_000_000,
+    qq: 1_000_000_000_000_000_000,
+} satisfies Record<string, number>

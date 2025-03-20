@@ -2,7 +2,7 @@ import htmlParser, { HTMLElement } from "node-html-parser"
 
 import { ExtractorFunction } from "../models/html"
 import { ParsingModel } from "../models/interface"
-import { NotFoundHTMLElement } from "../errors"
+import { HTMLElementNotFoundError } from "../errors"
 import { Parser } from "./base"
 
 export type ParseManyOptions = {
@@ -64,7 +64,7 @@ export class HtmlParser extends Parser {
             const element = this.root.querySelector(query)
 
             if (!element) {
-                throw new NotFoundHTMLElement(query)
+                throw new HTMLElementNotFoundError(query)
             }
 
             data = await extractor(element)
@@ -79,7 +79,7 @@ export class HtmlParser extends Parser {
         const element = query ? this.root.querySelector(query) : this.root
 
         if (!element) {
-            throw new NotFoundHTMLElement(query)
+            throw new HTMLElementNotFoundError(query)
         }
 
         return await model.parse(element.outerHTML)
