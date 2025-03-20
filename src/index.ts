@@ -1,3 +1,4 @@
+import { AxiosClient } from "./clients/axios-client";
 import { extractAttribute, extractHref, extractInnerText } from "./parsing/extractors"
 import { HtmlParsingModel } from "./parsing/models/html"
 import { HtmlParser } from "./parsing/parsers/html"
@@ -7,7 +8,13 @@ import { TransformingModel } from "./transforming/model"
 import { Transformer } from "./transforming/transformer"
 
 (async () => {
-    const parser = await HtmlParser.loadFile("examples/deetlist-heroic-races.html")
+    const client = new AxiosClient()
+
+    const response = await client.fetch({ url: "https://deetlist.com/dragoncity/events/race/" })
+
+    const parser = response.toHtml()
+
+    // const parser = await HtmlParser.loadFile("examples/deetlist-heroic-races.html")
     
     const metadataParsingModel = new HtmlParsingModel({
         title: {

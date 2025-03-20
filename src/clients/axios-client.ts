@@ -23,6 +23,7 @@ export class AxiosClient implements Client {
         maxRetries = 0,
         retries = 0,
         retryDelay,
+        method = "GET",
         ...axiosOptions
     }: AxiosRequestOptions): Promise<HttpResponse> {
         const failedAttempts: FalidAttempt[] = []
@@ -65,7 +66,37 @@ export class AxiosClient implements Client {
         return await attemptRequest(retries)
     }
 
-    async fetchMany(): Promise<HttpResponse[]> {
-        
+    async fetchMany({ requests, concurrency, requestDelay }: AxiosFetchManyOptions): Promise<HttpResponse[]> {
+        const results: HttpResponse[] = []
+        const executing: Promise<void>[] = []
+
+
+        const executeRequest = async (request: AxiosRequestOptions, index: number) => {
+            if (requestDelay !== undefined && requestDelay > 0 && index > 0) {
+                await delay(requestDelay)
+            }
+            const response = await this.fetch(request)
+            results[index] = response
+        }
+
+        for (let i = 0; i < requests.length; i++) {
+            const promise = executeRequest(requests[i], i).then(() => undefined)
+
+            executing.push(promise)
+
+            if (concurrency !== undefined && executing.length >= concurrency) {
+                await Promise.race(executing)
+
+                for (let j = executing.length - 1; j >= 0; j--) {
+                    if (await Promise.resolve(executing[j]).then(() => true).catch(() => true)) {
+                        executing.splice(j, 1)
+                    }
+                }
+            }
+        }
+
+        await Promise.all(executing)
+
+        return results
     }
 }
