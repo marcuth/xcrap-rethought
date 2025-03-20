@@ -66,7 +66,7 @@ export class HttpResponse {
         return String(this.body)
     }
 
-    toJson(): JsonParser {
+    asJsonParser(): JsonParser {
         const contentType = this.getHeader("content-type") || ""
         if (!contentType.includes("application/json") && typeof this.body !== "object") {
             try {
@@ -79,7 +79,7 @@ export class HttpResponse {
         return new JsonParser(this.body)
     }
 
-    toHtml(): HtmlParser {
+    asHtmlParser(): HtmlParser {
         const contentType = this.getHeader("content-type") || ""
 
         if (!contentType.includes("text/html") && typeof this.body !== "string") {

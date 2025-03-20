@@ -16,12 +16,8 @@ import { Transformer } from "./transforming/transformer"
 
     const response = await client.fetch({ url: "https://deetlist.com/dragoncity/events/race/" })
 
-    await client.fetchMany({
-        requests: [],
-        concurrency: 5
-    })
 
-    const parser = response.toHtml()
+    const parser = response.asHtmlParser()
 
     // const parser = await HtmlParser.loadFile("examples/deetlist-heroic-races.html")
     
