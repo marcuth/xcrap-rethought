@@ -73,7 +73,12 @@ export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client 
 
         const attemptRequest = async (currentRetry: number): Promise<HttpResponse> => {
             try {
-                const response = await this.axiosInstance.request(axiosOptions)
+                const optionsWithProxyUrl = {
+                    ...axiosOptions,
+                    url: this.currentProxyUrl ? `${this.currentProxyUrl}${axiosOptions.url}` : axiosOptions.url,
+                }
+
+                const response = await this.axiosInstance.request(optionsWithProxyUrl)
 
                 return new HttpResponse({
                     status: response.status,
