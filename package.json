@@ -11,12 +11,14 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/jmespath": "^0.15.2",
     "@types/node": "^22.13.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   },
   "dependencies": {
     "axios": "^1.8.4",
+    "jmespath": "^0.16.0",
     "node-html-parser": "^7.0.1"
   }
 }
