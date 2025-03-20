@@ -1,16 +1,25 @@
-import { AxiosClient } from "./clients/axios-client";
+import fakeUa from "fake-useragent"
+
 import { extractAttribute, extractHref, extractInnerText } from "./parsing/extractors"
 import { HtmlParsingModel } from "./parsing/models/html"
-import { HtmlParser } from "./parsing/parsers/html"
+import { AxiosClient } from "./clients/axios-client"
 
-;import { copyFieldValue, resolveRelativePath, stringLength, stringToUpperCase, trimString } from "./transforming/middlewares"
+import { copyFieldValue, resolveRelativePath, stringLength, stringToUpperCase, trimString } from "./transforming/middlewares"
 import { TransformingModel } from "./transforming/model"
 import { Transformer } from "./transforming/transformer"
 
-(async () => {
-    const client = new AxiosClient()
+;(async () => {
+    const client = new AxiosClient({
+        proxyUrl: "https://proxy.marcuth.workers.dev/",
+        userAgent: fakeUa,
+    })
 
     const response = await client.fetch({ url: "https://deetlist.com/dragoncity/events/race/" })
+
+    await client.fetchMany({
+        requests: [],
+        concurrency: 5
+    })
 
     const parser = response.toHtml()
 

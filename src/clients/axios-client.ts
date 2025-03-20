@@ -1,18 +1,61 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios"
+import axios, { AxiosInstance, AxiosInterceptorManager, AxiosProxyConfig, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios"
+import { RateLimitedAxiosInstance, rateLimitOptions } from "axios-rate-limit"
+const axiosRateLimit = require("axios-rate-limit")
 
 import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./interface"
 import { FalidAttempt, HttpResponse } from "./response"
 import { delay } from "../utils/delay"
+import BaseClient, { BaseClientOptions } from "./base-client"
+import { defaultUserAgent } from "../constants"
 
 export type AxiosRequestOptions = ClientRequestOptions & AxiosRequestConfig<any>
 
+export type AxiosInterceptors = {
+    request: AxiosInterceptorManager<InternalAxiosRequestConfig>
+    response: AxiosInterceptorManager<AxiosResponse>
+}
+
 export type AxiosFetchManyOptions = ClientFetchManyOptions<AxiosRequestOptions>
 
-export class AxiosClient implements Client {
-    protected readonly axiosInstance: AxiosInstance
+export type AxiosClientOptions = BaseClientOptions<AxiosProxyConfig> & {
+    withCredentials?: boolean
+    rateLimit?: rateLimitOptions
+}
 
-    constructor() {
-        this.axiosInstance = axios.create()
+export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client {
+    protected readonly axiosInstance: AxiosInstance
+    protected readonly rateLimitedInstance: RateLimitedAxiosInstance
+    readonly interceptors: AxiosInterceptors 
+
+    constructor(options: AxiosClientOptions = {}) {
+        super(options)
+
+        this.axiosInstance = axios.create({
+            proxy: this.currentProxy,
+            headers: {
+                "User-Agent": this.currentUserAgent ?? defaultUserAgent
+            },
+            ...(options.withCredentials && { withCredentials: options.withCredentials })
+        })
+
+        this.rateLimitedInstance = axiosRateLimit(
+            this.axiosInstance as AxiosInstance,
+            options.rateLimit ?? {}
+        )
+
+        this.rateLimitedInstance.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+            config.proxy = this.currentProxy
+
+            if (config.headers) {
+                config.headers["User-Agent"] = this.currentUserAgent ?? defaultUserAgent
+            } else {
+                (config as AxiosRequestConfig).headers = { "User-Agent": this.currentUserAgent }
+            }
+
+            return config
+        })
+
+        this.interceptors = this.rateLimitedInstance.interceptors
     }
 
     isSuccess(statusCode: number): boolean {
