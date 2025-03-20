@@ -1,5 +1,9 @@
 import { HTMLElement } from "node-html-parser"
 
+export type ExtractorFunctionReturnType = (string | undefined) | Promise<string | undefined>
+
+export type ExtractorFunction<T = ExtractorFunctionReturnType> = (element: HTMLElement) => T
+
 function extractInnerText(element: HTMLElement): string {
     const text = element.innerText
     return text
@@ -20,9 +24,11 @@ function extractInnerHtml(element: HTMLElement): string {
     return html
 }
 
-const extractAttribute = (name: string) => (element: HTMLElement): string | undefined => {
-    const attribute = element.attrs[name]
-    return attribute
+const extractAttribute = (name: string) => {
+    return (element: HTMLElement): string | undefined => {
+        const attribute = element.attrs[name]
+        return attribute
+    }
 }
 
 const extractValue = (element: HTMLElement): string | undefined => {

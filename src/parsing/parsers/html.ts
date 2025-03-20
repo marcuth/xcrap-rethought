@@ -1,8 +1,8 @@
 import htmlParser, { HTMLElement } from "node-html-parser"
 
-import { ExtractorFunction } from "../models/html"
-import { ParsingModel } from "../models/interface"
 import { HTMLElementNotFoundError } from "../errors"
+import { ParsingModel } from "../models/interface"
+import { ExtractorFunction } from "../extractors"
 import { Parser } from "./base"
 
 export type ParseManyOptions = {
@@ -14,6 +14,7 @@ export type ParseManyOptions = {
 export type ParseFirstOptions = {
     query?: string
     extractor: ExtractorFunction
+    default?: string | null
 }
 
 export type ExtractFirstOptions = {
@@ -40,10 +41,10 @@ export class HtmlParser extends Parser {
         query,
         extractor,
         limit
-    }: ParseManyOptions): Promise<string[]> {
+    }: ParseManyOptions): Promise<(string | undefined)[]> {
         const elements = this.root.querySelectorAll(query)
 
-        let dataList: string[] = []
+        let dataList: (string | undefined)[] = []
 
         for (const element of elements) {
             if (limit != undefined && dataList.length >= limit) break
@@ -56,9 +57,10 @@ export class HtmlParser extends Parser {
 
     async parseFirst({
         query,
-        extractor
-    }: ParseFirstOptions): Promise<string> {
-        let data: string
+        extractor,
+        default: default_
+    }: ParseFirstOptions): Promise<string | undefined | null> {
+        let data: string | undefined | null
 
         if (query) {
             const element = this.root.querySelector(query)
@@ -72,7 +74,7 @@ export class HtmlParser extends Parser {
             data = await extractor(this.root)
         }
 
-        return data
+        return data ?? default_
     }
 
     async extractFirst({ model, query }: ExtractFirstOptions) {

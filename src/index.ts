@@ -1,8 +1,12 @@
-import { extractInnerText } from "./parsing/extractors"
-import { HtmlParsingModel } from "./parsing/models/html";
+import { extractAttribute, extractHref, extractInnerText } from "./parsing/extractors"
+import { HtmlParsingModel } from "./parsing/models/html"
 import { HtmlParser } from "./parsing/parsers/html"
 
-;(async () => {
+;import { copyFieldValue, resolveRelativePath, stringLength, stringToUpperCase, trimString } from "./transforming/middlewares"
+import { TransformingModel } from "./transforming/model"
+import { Transformer } from "./transforming/transformer"
+
+(async () => {
     const parser = await HtmlParser.loadFile("examples/deetlist-heroic-races.html")
     
     const metadataParsingModel = new HtmlParsingModel({
@@ -35,10 +39,80 @@ import { HtmlParser } from "./parsing/parsers/html"
             query: "meta[property='og:image']",
             default: null,
             extractor: extractInnerText
+        },
+        ogUrl: {
+            query: "meta[property='og:url']",
+            default: null,
+            extractor: extractInnerText
+        },
+        charset: {
+            query: "meta[charset]",
+            default: null,
+            extractor: extractAttribute("charset")
+        },
+        viewport: {
+            query: "meta[name='viewport']",
+            default: null,
+            extractor: extractInnerText
+        },
+        author: {
+            query: "meta[name='author']",
+            default: null,
+            extractor: extractInnerText
+        },
+        ogType: {
+            query: "meta[property='og:type']",
+            default: null,
+            extractor: extractInnerText
+        },
+        twitterCard: {
+            query: "meta[name='twitter:card']",
+            default: null,
+            extractor: extractInnerText
+        },
+        twitterTitle: {
+            query: "meta[name='twitter:title']",
+            default: null,
+            extractor: extractInnerText
+        },
+        twitterDescription: {
+            query: "meta[name='twitter:description']",
+            default: null,
+            extractor: extractInnerText
+        },
+        twitterImage: {
+            query: "meta[name='twitter:image']",
+            default: null,
+            extractor: extractInnerText
+        },
+        favicon: {
+            query: "link[rel='icon'], link[rel='shortcut icon']",
+            default: null,
+            extractor: extractHref
         }
     })
 
     const metadata = await parser.parseModel(metadataParsingModel)
 
+    const metadataTransformingModel = new TransformingModel({
+        title: [
+            trimString("title"),
+            stringToUpperCase("title")
+        ],
+        test: [
+            copyFieldValue("title", "test"),
+            stringLength("test")
+        ],
+        favicon: [
+            resolveRelativePath("favicon", "https://deetlist.com/")
+        ]
+    })
+
+    const transformer = new Transformer(metadata)
+
+    const transformedMetadata = await transformer.transform(metadataTransformingModel)
+
     console.log(metadata)
+
+    console.log(transformedMetadata)
 })();

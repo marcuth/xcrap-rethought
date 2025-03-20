@@ -2,6 +2,7 @@ import htmlParser, { HTMLElement } from "node-html-parser"
 
 import { GroupQueryError, HTMLElementNotFoundError } from "../errors"
 import { ParsingModel } from "./interface"
+import { ExtractorFunction } from "../extractors"
 
 export type HtmlParsingModelResultData<T> = {
     [K in keyof T]: T[K] extends { isGroup: true }
@@ -14,9 +15,8 @@ export type HtmlParsingModelResultData<T> = {
         ? NestedModel extends ParsingModel
             ? Awaited<ReturnType<NestedModel["parse"]>>
             : never
-        : string;
+        : string
 }
-export type ExtractorFunction = (element: HTMLElement) => string | Promise<string>
 
 export type HtmlParsingModelBaseValue = {
     query?: string
@@ -37,6 +37,8 @@ export type HtmlParsingModelValue = HtmlParsingModelBaseValue | HtmlParsingModel
 export type HtmlParsingModelShape = {
     [key: string]: HtmlParsingModelValue
 }
+
+export type ParseBaseValueReturnType = (undefined | string)[] | string | null | undefined
 
 export class HtmlParsingModel implements ParsingModel {
     constructor(readonly shape: HtmlParsingModelShape) {}
@@ -60,7 +62,7 @@ export class HtmlParsingModel implements ParsingModel {
         return data
     }
 
-    protected async parseBaseValue(value: HtmlParsingModelBaseValue, root: HTMLElement): Promise<string[] | string | null> {
+    protected async parseBaseValue(value: HtmlParsingModelBaseValue, root: HTMLElement): Promise<ParseBaseValueReturnType> {
         if (value.isGroup) {
             if (!value.query) {
                 throw new GroupQueryError()
@@ -100,7 +102,7 @@ export class HtmlParsingModel implements ParsingModel {
                 throw new HTMLElementNotFoundError(value.query)
             }
 
-            const source = value.extractor ? await value.extractor(element) : element.outerHTML
+            const source = value.extractor ? await value.extractor(element) as string : element.outerHTML
 
             const data = await value.model.parse(source)
 

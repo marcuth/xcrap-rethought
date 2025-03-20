@@ -25,7 +25,7 @@ export type ParseFormattedNumberOptions = {
     sanitizeNumberString?: (value: string) => string
 }
 
-export type NextFunction = (nextContext?: Partial<any>) => any
+export type NextFunction = (data: Record<string, any>) => Promise<Record<string, any>>
 
 export type TransformerMiddlewareFunction = (
     data: any,
@@ -279,6 +279,44 @@ const stopIfObjectIncludes = (
     fields: string[]
 ): TransformerMiddlewareFunction => stopIf(key, (value) => fields.some(field => field in value))
 
+const stringLength = (key: string): TransformerMiddlewareFunction => {
+    return async (data, next) => {
+        const fieldValue = ensureField<string>(key, data)
+        return await next({ ...data, [key]: fieldValue.length })
+    }
+}
+
+const arrayLength = (key: string): TransformerMiddlewareFunction => {
+    return async (data, next) => {
+        const fieldValue = ensureField<Array<any>>(key, data)
+        return await next({ ...data, [key]: fieldValue.length })
+    }
+}
+
+const copyFieldValue = (sourceField: string, targetField: string): TransformerMiddlewareFunction => {
+    return async (data: Record<string, any>, next) => {
+        const fieldValue = ensureField(sourceField, data)
+        return await next({ ...data, [targetField]: fieldValue })
+    }
+}
+
+const resolveRelativePath = (key: string, baseUrl: string): TransformerMiddlewareFunction => {
+    return async (data, next) => {
+        const fieldValue = ensureField<string>(key, data)
+
+        let absoluteUrl = fieldValue
+
+        if (!fieldValue.match(/^https?:\/\//) && !fieldValue.startsWith("/")) {
+            absoluteUrl = new URL(fieldValue, baseUrl).href
+        } else if (fieldValue.startsWith("/")) {
+            const url = new URL(baseUrl)
+            absoluteUrl = `${url.origin}${fieldValue}`
+        }
+
+        return await next({ ...data, [key]: absoluteUrl })
+    }
+}
+
 export {
     stringToUpperCase,
     stringToLowerCase,
@@ -307,5 +345,9 @@ export {
     stopIfArrayIncludes,
     skipIfArrayIncludes,
     skipIfObjectIncludes,
-    stopIfObjectIncludes
+    stopIfObjectIncludes,
+    stringLength,
+    arrayLength,
+    copyFieldValue,
+    resolveRelativePath
 }
