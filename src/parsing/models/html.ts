@@ -21,12 +21,14 @@ export type HtmlParsingModelResultData<T> = {
 export type HtmlParsingModelBaseValue = {
     query?: string
     default?: string | string[] | null
+    limit?: number
     isGroup?: boolean
     extractor: ExtractorFunction
 }
 
 export type HtmlParsingModelNestedValue = {
     query: string
+    limit?: number
     model: ParsingModel
     isGroup?: boolean
     extractor?: ExtractorFunction
