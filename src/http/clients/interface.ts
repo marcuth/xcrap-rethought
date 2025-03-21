@@ -1,4 +1,4 @@
-import { HttpResponse } from "./response"
+import { HttpResponse } from "../response"
 
 export type ClientRequestOptions = {
     url: string

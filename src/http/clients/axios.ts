@@ -3,10 +3,11 @@ import { RateLimitedAxiosInstance, rateLimitOptions } from "axios-rate-limit"
 const axiosRateLimit = require("axios-rate-limit")
 
 import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./interface"
-import { FalidAttempt, HttpResponse } from "./response"
-import { delay } from "../utils/delay"
-import BaseClient, { BaseClientOptions } from "./base-client"
-import { defaultUserAgent } from "../constants"
+import { FaliedAttempt, HttpResponse } from "../response"
+import { BaseClient, BaseClientOptions } from "./base"
+import { InvalidStatusCodeError } from "../errors"
+import { defaultUserAgent } from "../../constants"
+import { delay } from "../../utils/delay"
 
 export type AxiosRequestOptions = ClientRequestOptions & AxiosRequestConfig<any>
 
@@ -22,10 +23,17 @@ export type AxiosClientOptions = BaseClientOptions<AxiosProxyConfig> & {
     rateLimit?: rateLimitOptions
 }
 
+export type ExecuteRequestOptions = {
+    request: AxiosRequestOptions,
+    index: number,
+    requestDelay?: number,
+    results: HttpResponse[]
+}
+
 export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client {
     protected readonly axiosInstance: AxiosInstance
     protected readonly rateLimitedInstance: RateLimitedAxiosInstance
-    readonly interceptors: AxiosInterceptors 
+    readonly interceptors: AxiosInterceptors
 
     constructor(options: AxiosClientOptions = {}) {
         super(options)
@@ -58,7 +66,7 @@ export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client 
         this.interceptors = this.rateLimitedInstance.interceptors
     }
 
-    isSuccess(statusCode: number): boolean {
+    private isSuccess(statusCode: number): boolean {
         return statusCode >= 200 && statusCode < 300
     }
 
@@ -69,7 +77,7 @@ export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client 
         method = "GET",
         ...axiosOptions
     }: AxiosRequestOptions): Promise<HttpResponse> {
-        const failedAttempts: FalidAttempt[] = []
+        const failedAttempts: FaliedAttempt[] = []
 
         const attemptRequest = async (currentRetry: number): Promise<HttpResponse> => {
             try {
@@ -80,6 +88,10 @@ export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client 
 
                 const response = await this.axiosInstance.request(optionsWithProxyUrl)
 
+                if (!this.isSuccess(response.status)) {
+                    throw new InvalidStatusCodeError(response.status)
+                }
+
                 return new HttpResponse({
                     status: response.status,
                     statusText: response.statusText,
@@ -88,7 +100,7 @@ export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client 
                     attempts: currentRetry + 1,
                     failedAttempts,
                 })
-            } catch(error: any) {
+            } catch (error: any) {
                 const errorMessage = error instanceof Error ? error.message : "Unknown error"
                 failedAttempts.push({ error: errorMessage, timestamp: new Date() })
 
@@ -114,32 +126,35 @@ export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client 
         return await attemptRequest(retries)
     }
 
+    protected async executeRequest({
+        index,
+        request,
+        results,
+        requestDelay
+    }: ExecuteRequestOptions): Promise<void> {
+        if (requestDelay !== undefined && requestDelay > 0 && index > 0) {
+            await delay(requestDelay)
+        }
+
+        results[index] = await this.fetch(request)
+    }
+
     async fetchMany({ requests, concurrency, requestDelay }: AxiosFetchManyOptions): Promise<HttpResponse[]> {
         const results: HttpResponse[] = []
         const executing: Promise<void>[] = []
 
-
-        const executeRequest = async (request: AxiosRequestOptions, index: number) => {
-            if (requestDelay !== undefined && requestDelay > 0 && index > 0) {
-                await delay(requestDelay)
-            }
-            const response = await this.fetch(request)
-            results[index] = response
-        }
-
         for (let i = 0; i < requests.length; i++) {
-            const promise = executeRequest(requests[i], i).then(() => undefined)
+            const promise = this.executeRequest({
+                request: requests[i],
+                index: i,
+                requestDelay: requestDelay,
+                results: results
+            }).then(() => undefined)
 
             executing.push(promise)
 
-            if (concurrency !== undefined && executing.length >= concurrency) {
-                await Promise.race(executing)
-
-                for (let j = executing.length - 1; j >= 0; j--) {
-                    if (await Promise.resolve(executing[j]).then(() => true).catch(() => true)) {
-                        executing.splice(j, 1)
-                    }
-                }
+            if (this.shouldThrottle(executing, concurrency)) {
+                await this.handleConcurrency(executing)
             }
         }
 

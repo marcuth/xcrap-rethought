@@ -10,7 +10,7 @@ export type HttpResponseOptions = {
     failedAttempts?: Array<{ error: string; timestamp: Date }>
 }
 
-export type FalidAttempt = {
+export type FaliedAttempt = {
     error: string
     timestamp: Date
 }
@@ -21,7 +21,7 @@ export class HttpResponse {
     readonly body: any
     readonly headers: Record<string, string>
     readonly attempts: number
-    readonly failedAttempts: FalidAttempt[]
+    readonly failedAttempts: FaliedAttempt[]
 
     constructor({
         body,
