@@ -1,4 +1,4 @@
-import { FieldNotFoundError } from "../transform/errors"
+import { FieldNotFoundError } from "../core/errors"
 
 export const ensureField = <T>(key: string, data: Record<string, any>): T => {
     if (!(key in data)) {
