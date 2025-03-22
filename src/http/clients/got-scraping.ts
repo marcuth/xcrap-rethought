@@ -1,4 +1,5 @@
-import { GotScraping, OptionsInit } from "got-scraping"
+import { HeaderGeneratorOptions } from "header-generator"
+import { GotScraping } from "got-scraping"
 import { loadEsm } from "load-esm"
 
 import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./interface"
@@ -8,14 +9,32 @@ import { InvalidStatusCodeError } from "../errors"
 import { defaultUserAgent } from "../../constants"
 import { delay } from "../../utils/delay"
 
+export type GotSrapingInitOptions = {
+    headerGeneratorOptions?: HeaderGeneratorOptions
+    headers?: Record<string, any>
+    responseType?: "json" | "html"
+    http2?: boolean
+    https?: {
+        rejectUnauthorized: boolean
+        ciphers: string
+    },
+    throwHttpErrors?: boolean
+    useHeaderGenerator?: string
+    timeout?: number
+    retry?: {
+        retries: number
+        maxRetryAfter: number
+    }
+}
+
 export type GotScrapingProxy = string
 
-export type GotScrapingRequestOptions = ClientRequestOptions & OptionsInit
+export type GotScrapingRequestOptions = ClientRequestOptions & GotSrapingInitOptions
 
 export type GotScrapingFetchManyOptions = ClientFetchManyOptions<GotScrapingRequestOptions>
 
 export type GotScrapingClientOptions = HttpClientBaseOptions<GotScrapingProxy> & {
-    initOptions?: OptionsInit
+    initOptions?: GotSrapingInitOptions
 }
 
 export class GotScrapingClient extends HttpClientBase<GotScrapingProxy> implements Client {
@@ -26,14 +45,15 @@ export class GotScrapingClient extends HttpClientBase<GotScrapingProxy> implemen
     }
 
     protected async initGotScraping() {
-        const { gotScraping } = await loadEsm("got-scraping")
+        const module = await loadEsm("got-scraping")
+        const gotScraping: GotScraping = module.gotScraping
 
         this.gotScrapingInstance = gotScraping.extend({
             headers: {
                 "User-Agent": this.currentUserAgent ?? defaultUserAgent
             },
             proxyUrl: this.currentProxy,
-            ...this.options.initOptions
+            ...this.options.initOptions,
         })
     }
 

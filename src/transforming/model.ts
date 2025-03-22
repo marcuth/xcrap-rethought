@@ -1,3 +1,4 @@
+import { MiddlewarePipeline } from "./middleware-pipeline";
 import { TransformerMiddlewareFunction, NextFunction } from "./middlewares"
 
 export type TransformingModelShape = {
@@ -10,34 +11,11 @@ export class TransformingModel {
     async transform(data: Record<string, any>): Promise<Record<string, any>> {
         const result: Record<string, any> = {...data}
 
-        for (const key in this.shape) {
-            const middlewares = this.shape[key]
-            let transformedValue = data[key]
-
-            const defaultNext: NextFunction = async (partialData) => partialData
-
-            const chain = middlewares.reduceRight(
-                (next: NextFunction, middleware: TransformerMiddlewareFunction) => {
-                    return async (currentData: Partial<Record<string, any>>) => {
-                        const mergedData = {
-                            ...result,
-                            [key]: transformedValue,
-                            ...currentData,
-                        }
-
-                        const middlewareResult = await middleware(mergedData, next)
-                        transformedValue = middlewareResult[key] ?? transformedValue
-
-                        return middlewareResult
-                    }
-                },
-                defaultNext
-            )
-
-            const middlewareResult = await chain({ [key]: transformedValue })
-            
-            Object.assign(result, middlewareResult)
-        }
+        await Promise.all(Object.keys(this.shape).map(async (key) => {
+            const pipeline = new MiddlewarePipeline(this.shape[key])
+            const transformedData = await pipeline.execute(data, key, data[key])
+            Object.assign(result, transformedData)
+        }))
 
         return result
     }
