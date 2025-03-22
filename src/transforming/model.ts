@@ -1,5 +1,5 @@
-import { MiddlewarePipeline } from "./middleware-pipeline";
-import { TransformerMiddlewareFunction, NextFunction } from "./middlewares"
+import { TransformerMiddlewareFunction } from "./middlewares"
+import { MiddlewarePipeline } from "./middleware-pipeline"
 
 export type TransformingModelShape = {
     [key: string]: TransformerMiddlewareFunction[]
