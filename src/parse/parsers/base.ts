@@ -1,7 +1,7 @@
+import { Abortable } from "node:events"
 import fs, { OpenMode } from "node:fs"
 
 import { ParsingModel } from "../models/interface"
-import { Abortable } from "node:events";
 
 export type ParserLoadFileOptions = (
     {

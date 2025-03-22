@@ -1,5 +1,5 @@
 import { GotScrapingClient } from "./http/clients/got-scraping"
-import { extractInnerText, HtmlParsingModel } from "./parsing"
+import { extract, fromPreviousElementSibling, HtmlParsingModel } from "./parse"
 
 ;(async () => {
     const client = new GotScrapingClient()
@@ -8,9 +8,9 @@ import { extractInnerText, HtmlParsingModel } from "./parsing"
     const parser = response.asHtmlParser()
 
     const quotesParsingModel = new HtmlParsingModel({
-        text: { query: ".text", extractor: extractInnerText },
-        author: { query: ".author", extractor: extractInnerText },
-        tags: { query: ".tag", extractor: extractInnerText, multiple: true, limit: 1 }
+        text: { query: ".text", extractor: extract("innerText") },
+        author: { query: ".author", extractor: extract("innerText") },
+        tags: { query: ".tag", extractor: fromPreviousElementSibling(extract("innerText")), multiple: true, limit: 1 }
     })
 
     const rootParsingModel = new HtmlParsingModel({

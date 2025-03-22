@@ -1,5 +1,5 @@
-import { HtmlParser } from "../parsing/parsers/html"
-import { JsonParser } from "../parsing/parsers/json"
+import { HtmlParser } from "../parse/parsers/html"
+import { JsonParser } from "../parse/parsers/json"
 
 export type HttpResponseOptions = {
     status: number
