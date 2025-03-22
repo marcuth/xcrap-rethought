@@ -1,8 +1,8 @@
 import htmlParser, { HTMLElement } from "node-html-parser"
 
-import { HTMLElementNotFoundError } from "../errors"
-import { ParsingModel } from "../models/interface"
-import { ExtractorFunction } from "../extractors"
+import { HTMLElementNotFoundError } from "../core/errors"
+import { ParsingModel } from "./parsing-model-interface"
+import { ExtractorFunction } from "./extractors"
 import { Parser } from "./base-parser"
 
 export type ParseManyOptions = {

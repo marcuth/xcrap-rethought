@@ -9,7 +9,7 @@ export * from "./base-parser"
 export * from "./html-parser"
 export * from "./json-parser"
 
-export const parsingModels = {
+export const parsingModelFactory = {
     html: (shape: HtmlParsingModelShape) => new HtmlParsingModel(shape),
     json: (shape: JsonParsingModelShape) => new JsonParsingModel(shape)
 }

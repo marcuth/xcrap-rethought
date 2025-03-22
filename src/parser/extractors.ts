@@ -1,5 +1,6 @@
 import { HTMLElement } from "node-html-parser"
-import { HTMLElementNotFoundError } from "./errors"
+
+import { HTMLElementNotFoundError } from "../core/errors"
 
 export type ExtractorFunctionReturnType = (string | undefined) | Promise<string | undefined>
 

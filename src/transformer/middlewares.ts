@@ -1,6 +1,6 @@
 import * as dateFns from "date-fns"
 
-import { defaultFormattedNumberSuffixes, defaultMinimumFractionDigits } from "../constants"
+import { defaultFormattedNumberSuffixes, defaultMinimumFractionDigits } from "../core/constants"
 import { ensureField } from "../utils/ensure-field"
 
 export type StringToBooleanOptions = {
