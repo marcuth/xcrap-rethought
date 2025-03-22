@@ -61,7 +61,7 @@ export class GotScrapingClient extends HttpClientBase<GotScrapingProxy> implemen
 
                 const response = await this.gotScrapingInstance!({
                     url: fullUrl,
-                    method,
+                    method: method,
                     headers: {
                         "User-Agent": this.currentUserAgent ?? defaultUserAgent,
                         ...gotOptions.headers
