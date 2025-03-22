@@ -42,10 +42,9 @@ export type ConfigurePageOptions = {
 export type PuppeteerFetchManyOptions = ClientFetchManyOptions<PuppeterRequestOptions>
 
 export class PuppeteerClient extends HttpClientBase<string> implements Client {
-    readonly options: PuppeteerClientOptions
     protected browser?: Browser
 
-    constructor(options: PuppeteerClientOptions = {}) {
+    constructor(readonly options: PuppeteerClientOptions = {}) {
         super(options)
 
         this.options = options
