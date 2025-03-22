@@ -1,16 +1,25 @@
 import { defaultUserAgent } from "../../constants"
+import { delay } from "../../utils/delay"
+import { HttpResponse } from "../response"
 
 export type ProxyUrlFuction = () => string
 export type ProxyFunction<ProxyReturn = any> = () => ProxyReturn
 export type UserAgentFunction = () => string
 
-export type BaseClientOptions<Proxy> = {
+export type HttpClientBaseOptions<Proxy> = {
     proxyUrl?: string | ProxyUrlFuction
     proxy?: Proxy | ProxyFunction<Proxy>
     userAgent?: string | UserAgentFunction
 }
 
-export class BaseClient<Proxy> {
+export type ExecuteRequestOptions = {
+    request: any
+    index: number
+    requestDelay?: number
+    results: HttpResponse[]
+}
+
+export class HttpClientBase<Proxy> {
     public readonly proxy?: Proxy | ProxyFunction<Proxy>
     public readonly userAgent?: string | UserAgentFunction
     public readonly proxyUrl?: string | ProxyUrlFuction
@@ -19,7 +28,7 @@ export class BaseClient<Proxy> {
         proxy,
         userAgent,
         proxyUrl
-    }: BaseClientOptions<Proxy>) {
+    }: HttpClientBaseOptions<Proxy>) {
         this.proxy = proxy
         this.userAgent = userAgent ?? defaultUserAgent
         this.proxyUrl = proxyUrl
@@ -41,6 +50,14 @@ export class BaseClient<Proxy> {
         return currentUserAgent
     }
 
+    protected get currentProxy(): any | undefined {
+        const currentProxy = typeof this.proxy === "function" ?
+            (this.proxy as ProxyFunction)() :
+            this.proxy
+
+        return currentProxy
+    }
+
     protected shouldThrottle(
         executing: Promise<void>[],
         concurrency?: number
@@ -59,11 +76,22 @@ export class BaseClient<Proxy> {
         this.cleanCompletedPromises(executing)
     }
 
-    protected get currentProxy(): any | undefined {
-        const currentProxy = typeof this.proxy === "function" ?
-            (this.proxy as ProxyFunction)() :
-            this.proxy
+    protected async executeRequest({
+        index,
+        request,
+        results,
+        requestDelay
+    }: ExecuteRequestOptions): Promise<void> {
+        if (requestDelay !== undefined && requestDelay > 0 && index > 0) {
+            await delay(requestDelay)
+        }
 
-        return currentProxy
+        if ("fetch" in this && typeof this.fetch === "function") {
+            results[index] = await this.fetch(request)
+        }
+    }
+
+    protected isSuccess(statusCode: number): boolean {
+        return statusCode >= 200 && statusCode < 300
     }
 }

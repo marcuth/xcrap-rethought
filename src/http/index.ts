@@ -1,5 +1,5 @@
 export { AxiosClient, AxiosClientOptions, AxiosFetchManyOptions, AxiosInterceptors, AxiosRequestOptions, ExecuteRequestOptions } from "./clients/axios"
-export { BaseClient, BaseClientOptions, ProxyFunction, ProxyUrlFuction, UserAgentFunction } from "./clients/base"
+export { HttpClientBase, HttpClientBaseOptions, ProxyFunction, ProxyUrlFuction, UserAgentFunction } from "./clients/http-client-base"
 export { Client, ClientFetchManyOptions, ClientFetchOptions, ClientRequestOptions } from "./clients/interface"
 export { FaliedAttempt, HttpResponse, HttpResponseOptions } from "./response"
 export { InvalidStatusCodeError } from "./errors"

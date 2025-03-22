@@ -23,6 +23,7 @@
     "axios-rate-limit": "^1.4.0",
     "date-fns": "^4.1.0",
     "jmespath": "^0.16.0",
-    "node-html-parser": "^7.0.1"
+    "node-html-parser": "^7.0.1",
+    "puppeteer": "^24.4.0"
   }
 }

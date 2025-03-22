@@ -4,7 +4,7 @@ const axiosRateLimit = require("axios-rate-limit")
 
 import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./interface"
 import { FaliedAttempt, HttpResponse } from "../response"
-import { BaseClient, BaseClientOptions } from "./base"
+import { HttpClientBase, HttpClientBaseOptions } from "./http-client-base"
 import { InvalidStatusCodeError } from "../errors"
 import { defaultUserAgent } from "../../constants"
 import { delay } from "../../utils/delay"
@@ -18,22 +18,15 @@ export type AxiosInterceptors = {
 
 export type AxiosFetchManyOptions = ClientFetchManyOptions<AxiosRequestOptions>
 
-export type AxiosClientOptions = BaseClientOptions<AxiosProxyConfig> & {
+export type AxiosClientOptions = HttpClientBaseOptions<AxiosProxyConfig> & {
     withCredentials?: boolean
     rateLimit?: rateLimitOptions
 }
 
-export type ExecuteRequestOptions = {
-    request: AxiosRequestOptions,
-    index: number,
-    requestDelay?: number,
-    results: HttpResponse[]
-}
-
-export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client {
+export class AxiosClient extends HttpClientBase<AxiosProxyConfig> implements Client {
     protected readonly axiosInstance: AxiosInstance
     protected readonly rateLimitedInstance: RateLimitedAxiosInstance
-    readonly interceptors: AxiosInterceptors
+    protected readonly interceptors: AxiosInterceptors
 
     constructor(options: AxiosClientOptions = {}) {
         super(options)
@@ -64,10 +57,6 @@ export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client 
         })
 
         this.interceptors = this.rateLimitedInstance.interceptors
-    }
-
-    private isSuccess(statusCode: number): boolean {
-        return statusCode >= 200 && statusCode < 300
     }
 
     async fetch({
@@ -124,19 +113,6 @@ export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client 
         }
 
         return await attemptRequest(retries)
-    }
-
-    protected async executeRequest({
-        index,
-        request,
-        results,
-        requestDelay
-    }: ExecuteRequestOptions): Promise<void> {
-        if (requestDelay !== undefined && requestDelay > 0 && index > 0) {
-            await delay(requestDelay)
-        }
-
-        results[index] = await this.fetch(request)
     }
 
     async fetchMany({ requests, concurrency, requestDelay }: AxiosFetchManyOptions): Promise<HttpResponse[]> {
