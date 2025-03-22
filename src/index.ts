@@ -7,7 +7,7 @@ import { PuppeteerClient } from "./http"
     const client = new PuppeteerClient({
         userAgent: fakeUa,
         headless: true,
-        proxyUrl: "https://proxy.marcuth.workers.dev/"
+        proxyUrl: "https://proxy.marcuth.workers.dev/",
     })
 
     const response = await client.fetch({ url: "https://quotes.toscrape.com/", javaScriptEnabled: false })

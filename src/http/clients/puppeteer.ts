@@ -181,7 +181,7 @@ export class PuppeteerClient extends HttpClientBase<string> implements Client {
     
                 if (currentRetry < maxRetries) {
                     if (retryDelay !== undefined && retryDelay > 0) {
-                        await delay(retryDelay);
+                        await delay(retryDelay)
                     }
 
                     return await attemptRequest(currentRetry + 1)
