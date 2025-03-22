@@ -1,11 +1,11 @@
-import puppeteer, { Browser, Page, LaunchOptions, HTTPRequest } from "puppeteer"
+import puppeteer, { Browser, Page, LaunchOptions } from "puppeteer"
 
-import { Client, ClientFetchManyOptions, ClientFetchOptions, ClientRequestOptions } from "./interface"
+import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./interface"
 import { HttpClientBase, HttpClientBaseOptions } from "./http-client-base"
-import { FaliedAttempt, HttpResponse } from "../response"
 import { defaultPuppeteerActionType } from "../../constants"
-import { delay } from "../../utils/delay"
+import { FaliedAttempt, HttpResponse } from "../response"
 import { InvalidStatusCodeError } from "../errors"
+import { delay } from "../../utils/delay"
 
 export type PuppeteerProxy = string
 
@@ -20,7 +20,7 @@ export enum PuppeteerClientActionType {
 
 export type PuppeteerClientAction = PuppeteerClientActionFunction | {
     exec: PuppeteerClientActionFunction
-    type: PuppeteerClientActionType
+    type: `${PuppeteerClientActionType}`
 }
 
 export type ExtractActionsResult = {

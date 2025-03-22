@@ -1,13 +1,16 @@
 import fakeUa from "fake-useragent"
-import { PuppeteerClient } from "./http/clients/puppeteer"
-import { extractInnerText, HtmlParsingModel, JsonParsingModel } from "./parsing"
-import { TransformingModel } from "./transforming"
-import { AxiosClient } from "./http"
+
+import { extractInnerText, HtmlParsingModel } from "./parsing"
+import { PuppeteerClient } from "./http"
 
 ;(async () => {
-    const client = new PuppeteerClient({ userAgent: fakeUa, headless: true })
+    const client = new PuppeteerClient({
+        userAgent: fakeUa,
+        headless: true,
+        proxyUrl: "https://proxy.marcuth.workers.dev/"
+    })
 
-    const response = await client.fetch({ url: "https://quotes.toscrape.com/" })
+    const response = await client.fetch({ url: "https://quotes.toscrape.com/", javaScriptEnabled: false })
     const parser = response.asHtmlParser()
 
     const quotesParsingModel = new HtmlParsingModel({
