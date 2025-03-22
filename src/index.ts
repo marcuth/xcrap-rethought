@@ -5,10 +5,7 @@ import { extractInnerText, HtmlParsingModel } from "./parsing"
 import { PuppeteerClient } from "./http"
 
 ;(async () => {
-    const client = new GotScrapingClient({
-        userAgent: fakeUa,
-        proxyUrl: "https://proxy.marcuth.workers.dev/",
-    })
+    const client = new GotScrapingClient()
 
     const response = await client.fetch({ url: "https://quotes.toscrape.com/" })
     const parser = response.asHtmlParser()
