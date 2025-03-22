@@ -2,12 +2,12 @@ import { HeaderGeneratorOptions } from "header-generator"
 import { GotScraping } from "got-scraping"
 import { loadEsm } from "load-esm"
 
-import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./interface"
-import { BaseClient, BaseClientOptions } from "./http-client-base"
-import { HttpResponse, FaliedAttempt } from "../response"
-import { InvalidStatusCodeError } from "../errors"
-import { defaultUserAgent } from "../../constants"
-import { delay } from "../../utils/delay"
+import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./client-interface"
+import { BaseClient, BaseClientOptions } from "./base-client"
+import { HttpResponse, FaliedAttempt } from "./response"
+import { InvalidStatusCodeError } from "../core/errors"
+import { defaultUserAgent } from "../core/constants"
+import { delay } from "../utils/delay"
 
 export type GotSrapingInitOptions = {
     headerGeneratorOptions?: HeaderGeneratorOptions

@@ -2,12 +2,12 @@ import axios, { AxiosInstance, AxiosInterceptorManager, AxiosProxyConfig, AxiosR
 import { RateLimitedAxiosInstance, rateLimitOptions } from "axios-rate-limit"
 const axiosRateLimit = require("axios-rate-limit")
 
-import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./interface"
-import { FaliedAttempt, HttpResponse } from "../response"
-import { BaseClient, BaseClientOptions } from "./http-client-base"
-import { InvalidStatusCodeError } from "../errors"
-import { defaultUserAgent } from "../../constants"
-import { delay } from "../../utils/delay"
+import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./client-interface"
+import { BaseClient, BaseClientOptions } from "./base-client"
+import { FaliedAttempt, HttpResponse } from "./response"
+import { InvalidStatusCodeError } from "../core/errors"
+import { defaultUserAgent } from "../core/constants"
+import { delay } from "../utils/delay"
 
 export type AxiosRequestOptions = ClientRequestOptions & AxiosRequestConfig<any>
 

@@ -1,11 +1,11 @@
 import puppeteer, { Browser, Page, LaunchOptions } from "puppeteer"
 
-import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./interface"
-import { BaseClient, BaseClientOptions } from "./http-client-base"
-import { defaultPuppeteerActionType } from "../../constants"
-import { FaliedAttempt, HttpResponse } from "../response"
-import { InvalidStatusCodeError } from "../errors"
-import { delay } from "../../utils/delay"
+import { Client, ClientFetchManyOptions, ClientRequestOptions } from "./client-interface"
+import { BaseClient, BaseClientOptions } from "./base-client"
+import { defaultPuppeteerActionType } from "../core/constants"
+import { FaliedAttempt, HttpResponse } from "./response"
+import { InvalidStatusCodeError } from "../core/errors"
+import { delay } from "../utils/delay"
 
 export type PuppeteerProxy = string
 
