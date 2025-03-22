@@ -1,11 +1,11 @@
 import htmlParser, { HTMLElement } from "node-html-parser"
 
-import { GroupQueryError, HTMLElementNotFoundError } from "../errors"
+import { MultipleQueryError, HTMLElementNotFoundError } from "../errors"
 import { ParsingModel } from "./interface"
 import { ExtractorFunction } from "../extractors"
 
 export type HtmlParsingModelResultData<T> = {
-    [K in keyof T]: T[K] extends { isGroup: true }
+    [K in keyof T]: T[K] extends { multiple: true }
         ? T[K] extends { model: infer NestedModel }
             ? NestedModel extends ParsingModel
                 ? Awaited<ReturnType<NestedModel["parse"]>>[]
@@ -22,7 +22,7 @@ export type HtmlParsingModelBaseValue = {
     query?: string
     default?: string | string[] | null
     limit?: number
-    isGroup?: boolean
+    multiple?: boolean
     extractor: ExtractorFunction
 }
 
@@ -30,7 +30,7 @@ export type HtmlParsingModelNestedValue = {
     query: string
     limit?: number
     model: ParsingModel
-    isGroup?: boolean
+    multiple?: boolean
     extractor?: ExtractorFunction
 }
 
@@ -65,12 +65,16 @@ export class HtmlParsingModel implements ParsingModel {
     }
 
     protected async parseBaseValue(value: HtmlParsingModelBaseValue, root: HTMLElement): Promise<ParseBaseValueReturnType> {
-        if (value.isGroup) {
+        if (value.multiple) {
             if (!value.query) {
-                throw new GroupQueryError()
+                throw new MultipleQueryError()
             }
 
             const elements = root.querySelectorAll(value.query)
+
+            if (value.limit !== undefined) {
+                elements.splice(value.limit)
+            }
 
             return await Promise.all(
                 elements.map(element => value.extractor(element))
@@ -91,8 +95,12 @@ export class HtmlParsingModel implements ParsingModel {
     }
 
     protected async parseNestedValue(value: HtmlParsingModelNestedValue, root: HTMLElement) {
-        if (value.isGroup) {
+        if (value.multiple) {
             const elements = root.querySelectorAll(value.query)
+
+            if (value.limit !== undefined) {
+                elements.splice(value.limit)
+            }
 
             return await Promise.all(
                 elements.map(element => value.model.parse(element.outerHTML))

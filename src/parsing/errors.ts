@@ -5,9 +5,9 @@ export class HTMLElementNotFoundError extends Error {
     }
 }
 
-export class GroupQueryError extends Error {
+export class MultipleQueryError extends Error {
     constructor() {
-        super("Group value must have a 'query'")
-        this.name = "GroupQueryError"
+        super("Multiple value must have a 'query'")
+        this.name = "MultipleQueryError"
     }
 }

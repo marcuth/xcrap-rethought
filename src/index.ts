@@ -13,13 +13,13 @@ import { PuppeteerClient } from "./http"
     const quotesParsingModel = new HtmlParsingModel({
         text: { query: ".text", extractor: extractInnerText },
         author: { query: ".author", extractor: extractInnerText },
-        tags: { query: ".tag", extractor: extractInnerText, isGroup: true }
+        tags: { query: ".tag", extractor: extractInnerText, multiple: true, limit: 1 }
     })
 
     const rootParsingModel = new HtmlParsingModel({
         quotes: {
             query: ".quote",
-            isGroup: true,
+            multiple: true,
             model: quotesParsingModel
         }
     })
@@ -28,10 +28,3 @@ import { PuppeteerClient } from "./http"
 
     console.dir(data, { depth: null })
 })();
-
-// (async () => {
-//     // Importação dinâmica do módulo got-scraping
-//     const { gotScraping } = await loadEsm('got-scraping');
-//     // Agora você pode utilizar o gotScraping normalmente.
-//     console.log(gotScraping)
-//   })()
