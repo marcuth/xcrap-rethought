@@ -1,8 +1,5 @@
-import fakeUa from "fake-useragent"
-
 import { GotScrapingClient } from "./http/clients/got-scraping"
 import { extractInnerText, HtmlParsingModel } from "./parsing"
-import { PuppeteerClient } from "./http"
 
 ;(async () => {
     const client = new GotScrapingClient()
