@@ -11,11 +11,14 @@ export class TransformingModel {
     async transform(data: Record<string, any>): Promise<Record<string, any>> {
         const result: Record<string, any> = {...data}
 
-        await Promise.all(Object.keys(this.shape).map(async (key) => {
-            const pipeline = new MiddlewarePipeline(this.shape[key])
-            const transformedData = await pipeline.execute(data, key, data[key])
-            Object.assign(result, transformedData)
-        }))
+        await Promise.all(
+            Object.keys(this.shape)
+                .map(async (key) => {
+                    const pipeline = new MiddlewarePipeline(this.shape[key])
+                    const transformedData = await pipeline.execute(data, key, data[key])
+                    Object.assign(result, transformedData)
+                })
+        )
 
         return result
     }
