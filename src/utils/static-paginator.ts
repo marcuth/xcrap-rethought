@@ -62,6 +62,13 @@ export class StaticPaginator {
         const lastPageRaw = await parser.parseFirst(trackers.lastPage)
         const lastPageTransformed = (trackers.lastPage.transformer || Number)(lastPageRaw)
 
+        console.log(currentPageTransformed, lastPageTransformed)
+
+        if (isNaN(currentPageTransformed) || isNaN(lastPageTransformed)) {
+            
+            throw Error()
+        }
+
         return {
             response: response,
             parser: parser,
