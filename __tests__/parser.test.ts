@@ -55,6 +55,6 @@ describe("Parser integration test", () => {
 
             expect(fs.promises.readFile).toHaveBeenCalledWith(filePath, { encoding: "utf-8" })
             expect(parserInstance.source).toBe(fileContent)
-        });
-    });
-});
+        })
+    })
+})
