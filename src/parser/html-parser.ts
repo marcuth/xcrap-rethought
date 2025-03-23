@@ -59,8 +59,8 @@ export class HtmlParser extends Parser {
         query,
         extractor,
         default: default_
-    }: ParseFirstOptions): Promise<string | undefined | null> {
-        let data: string | undefined | null
+    }: ParseFirstOptions): Promise<any | undefined | null> {
+        let data: any | undefined | null
 
         if (query) {
             const element = this.root.querySelector(query)
