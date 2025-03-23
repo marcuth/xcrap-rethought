@@ -9,20 +9,20 @@ export type JsonParsingModelShape = {
 export class JsonParsingModel implements ParsingModel {
     constructor(readonly shape: JsonParsingModelShape) {}
 
-    parse(source: string): Promise<any> {
+    parse(source: string) {
         const root = JSON.parse(source)
         const data: Record<keyof typeof this.shape, any> = {}
 
         for (const key in this.shape) {
-            const value = this.shape[key]
+            const query = this.shape[key]
 
-            data[key] = this.parseValue(value, root)
+            data[key] = this.parseValue(query, root)
         }
 
-        return root
+        return data
     }
 
-    parseValue(value: string, root: any) {
-        return jmespath.search(root, value)
+    parseValue(query: string, root: any) {
+        return jmespath.search(root, query)
     }
 }
