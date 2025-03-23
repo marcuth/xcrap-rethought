@@ -36,3 +36,31 @@ export class ExtractorNotFoundError extends Error {
         super(`Extractor with name "${name}" not found`)
     }
 }
+
+export class StaticPaginatorError extends Error {
+    constructor(message: string) {
+        super(message)
+        this.name = "StaticPaginatorError"
+    }
+}
+
+export class InvalidUrlError extends StaticPaginatorError {
+    constructor(url: string) {
+        super(`The provided URL does not contain the string {page}: ${url}`)
+        this.name = "InvalidUrlError"
+    }
+}
+
+export class InvalidPageError extends StaticPaginatorError {
+    constructor(page: number, minPage: number, lastPage: number) {
+        super(`The given page ${page} is outside the allowed range [${minPage}, ${lastPage}]`)
+        this.name = "InvalidPageError"
+    }
+}
+
+export class PageOutOfRangeError extends StaticPaginatorError {
+    constructor(page: number, minPage: number, lastPage: number) {
+        super(`Page ${page} is outside the allowed range [${minPage}, ${lastPage}]`)
+        this.name = "PageOutOfRangeError"
+    }
+}

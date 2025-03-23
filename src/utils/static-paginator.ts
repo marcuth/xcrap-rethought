@@ -1,3 +1,4 @@
+import { InvalidUrlError, PageOutOfRangeError } from "../core/errors"
 import { Client, ClientRequestOptions } from "../http"
 import { ExtractorFunction } from "../parser"
 
@@ -73,12 +74,26 @@ export class StaticPaginator {
     }
 
     static generateUrl(url: string, page: number): string {
+        if (!url.includes("{page}")) {
+            throw new InvalidUrlError(url)
+        }
+
         return url.replace(/{page}/g, String(page))
+    }
+
+    set(page: number): string {
+        if (page < this.minPage || page > this.lastPage) {
+            throw new PageOutOfRangeError(page, this.minPage, this.lastPage)
+        }
+
+        this.currentPage = page
+
+        return this.current
     }
 
     previous(): string {
         if (this.currentPage <= this.minPage) {
-            throw new Error()
+            throw new PageOutOfRangeError(this.currentPage, this.minPage, this.lastPage)
         }
 
         this.currentPage--
@@ -92,7 +107,7 @@ export class StaticPaginator {
 
     next(): string {
         if (this.currentPage >= this.lastPage) {
-            throw new Error()
+            throw new PageOutOfRangeError(this.currentPage, this.minPage, this.lastPage)
         }
 
         this.currentPage++
