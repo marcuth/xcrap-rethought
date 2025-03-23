@@ -1,13 +1,19 @@
-import { JsonParsingModel } from "../src/parser/json-parsing-model"
+import { parsingModelFactory } from "../src/parser"
 
-describe("JsonParsingModel", () => {
+describe("JsonParsingModel integration test", () => {
     test("should correctly map JSON properties", async () => {
         const json = JSON.stringify({ name: "Marcuth", age: 19, contact: { email: "test@email.com" } })
 
-        const parsingModel = new JsonParsingModel({
-            username: "name",
-            email: "contact.email",
-            age: "age"
+        const parsingModel = parsingModelFactory.json({
+            username: {
+                query: "name"
+            },
+            email: {
+                query: "contact.email"
+            },
+            age: {
+                query: "age"
+            }
         })
 
         const data = parsingModel.parse(json)
@@ -22,9 +28,13 @@ describe("JsonParsingModel", () => {
     test("should return null for missing properties", async () => {
         const json = JSON.stringify({ name: "Marcuth" })
 
-        const parsingModel = new JsonParsingModel({
-            username: "name",
-            email: "contact.email"
+        const parsingModel = parsingModelFactory.json({
+            username: {
+                query: "name"
+            },
+            email: {
+                query: "contact.email"
+            }
         })
 
         const data = parsingModel.parse(json)
@@ -38,7 +48,11 @@ describe("JsonParsingModel", () => {
     test("should throw error for invalid JSON", async () => {
         const invalidJson = "{ name: 'Marcuth' "
 
-        const parsingModel = new JsonParsingModel({ username: "name" })
+        const parsingModel = parsingModelFactory.json({
+            username: {
+                query: "name"
+            }
+        })
 
         expect(() => parsingModel.parse(invalidJson)).toThrow(SyntaxError)
     })

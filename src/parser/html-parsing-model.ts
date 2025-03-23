@@ -4,23 +4,23 @@ import { MultipleQueryError, HTMLElementNotFoundError } from "../core/errors"
 import { ParsingModel } from "./parsing-model-interface"
 import { ExtractorFunction } from "./extractors"
 
-export type HtmlParsingModelBaseValue = {
+export type HtmlParsingModelShapeBaseValue = {
     query?: string
     default?: string | string[] | null
-    limit?: number
     multiple?: boolean
+    limit?: number
     extractor: ExtractorFunction
 }
 
-export type HtmlParsingModelNestedValue = {
+export type HtmlParsingModelShapeNestedValue = {
     query: string
     limit?: number
-    model: ParsingModel
     multiple?: boolean
+    model: ParsingModel
     extractor?: ExtractorFunction
 }
 
-export type HtmlParsingModelValue = HtmlParsingModelBaseValue | HtmlParsingModelNestedValue
+export type HtmlParsingModelValue = HtmlParsingModelShapeBaseValue | HtmlParsingModelShapeNestedValue
 
 export type HtmlParsingModelShape = {
     [key: string]: HtmlParsingModelValue
@@ -50,7 +50,7 @@ export class HtmlParsingModel implements ParsingModel {
         return data
     }
 
-    protected async parseBaseValue(value: HtmlParsingModelBaseValue, root: HTMLElement): Promise<ParseBaseValueReturnType> {
+    protected async parseBaseValue(value: HtmlParsingModelShapeBaseValue, root: HTMLElement): Promise<ParseBaseValueReturnType> {
         if (value.multiple) {
             if (!value.query) {
                 throw new MultipleQueryError()
@@ -80,7 +80,7 @@ export class HtmlParsingModel implements ParsingModel {
         }
     }
 
-    protected async parseNestedValue(value: HtmlParsingModelNestedValue, root: HTMLElement) {
+    protected async parseNestedValue(value: HtmlParsingModelShapeNestedValue, root: HTMLElement) {
         if (value.multiple) {
             const elements = root.querySelectorAll(value.query)
 

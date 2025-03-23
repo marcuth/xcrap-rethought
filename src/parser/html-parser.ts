@@ -44,15 +44,15 @@ export class HtmlParser extends Parser {
     }: ParseManyOptions): Promise<(string | undefined)[]> {
         const elements = this.root.querySelectorAll(query)
 
-        let dataList: (string | undefined)[] = []
+        let items: (string | undefined)[] = []
 
         for (const element of elements) {
-            if (limit != undefined && dataList.length >= limit) break
+            if (limit != undefined && items.length >= limit) break
             const data = await extractor(element)
-            dataList.push(data)
+            items.push(data)
         }
 
-        return dataList
+        return items
     }
 
     async parseFirst({
@@ -66,6 +66,10 @@ export class HtmlParser extends Parser {
             const element = this.root.querySelector(query)
 
             if (!element) {
+                if (default_ !== undefined) {
+                    return default_
+                }
+
                 throw new HTMLElementNotFoundError(query)
             }
 

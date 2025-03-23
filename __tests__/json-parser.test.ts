@@ -1,4 +1,4 @@
-import { extract, JsonParser, parsingModelFactory } from "../src/parser"
+import { JsonParser } from "../src/parser"
 
 describe("JsonParser integration test", () => {
     test("should extract simple value from JSON", () => {

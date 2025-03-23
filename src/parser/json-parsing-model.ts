@@ -2,8 +2,13 @@ import * as jmespath from "jmespath"
 
 import { ParsingModel } from "./parsing-model-interface"
 
+export type JsonParsingModelShapeValue = {
+    query: string
+    default?: any
+}
+
 export type JsonParsingModelShape = {
-    [key: string]: string
+    [key: string]: JsonParsingModelShapeValue
 }
 
 export class JsonParsingModel implements ParsingModel {
@@ -14,15 +19,21 @@ export class JsonParsingModel implements ParsingModel {
         const data: Record<keyof typeof this.shape, any> = {}
 
         for (const key in this.shape) {
-            const query = this.shape[key]
+            const value = this.shape[key]
 
-            data[key] = this.parseValue(query, root)
+            data[key] = this.parseValue(value, root)
         }
 
         return data
     }
 
-    parseValue(query: string, root: any) {
-        return jmespath.search(root, query)
+    parseValue(value: JsonParsingModelShapeValue, root: any) {
+        const extractedData = jmespath.search(root, value.query)
+
+        if (extractedData === null && value.default !== undefined) {
+            return value.default
+        }
+
+        return extractedData
     }
 }

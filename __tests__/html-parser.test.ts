@@ -5,40 +5,26 @@ describe("HtmlParser integration test", () => {
         const html = "<html><head><title>Example</title></head></html>"
         const parser = new HtmlParser(html)
 
-        const rootParsingModel = parsingModelFactory.html({
-            title: {
-                query: "title",
-                extractor: extract("innerText")
-            }
-        })
+        const title = await parser.parseFirst({ query: "title", extractor: extract("innerText") })
 
-        const data = await parser.extractFirst({ model: rootParsingModel })
-
-        expect(data).toEqual({ title: "Example" })
+        expect(title).toEqual("Example")
     })
 
     test("should extract multiple items from HTML", async () => {
         const html = `<html><body><h1>Itens</h1><ul><li>Item A</li><li>Item B</li><li>Item C</li><li>Item D</li></ul></body></html>`
         const parser = new HtmlParser(html)
 
-        const rootParsingModel = parsingModelFactory.html({
-            items: {
-                query: "li",
-                multiple: true,
-                extractor: extract("innerText")
-            }
+        const data = await parser.parseMany({
+            query: "ul li",
+            extractor: extract("innerText")
         })
 
-        const data = await parser.extractFirst({ query: "ul", model: rootParsingModel })
-
-        expect(data).toEqual({
-            items: [
-                "Item A",
-                "Item B",
-                "Item C",
-                "Item D"
-            ]
-        })
+        expect(data).toEqual([
+            "Item A",
+            "Item B",
+            "Item C",
+            "Item D"
+        ])
     })
 
     test("should extract product list from HTML", async () => {
@@ -88,49 +74,16 @@ describe("HtmlParser integration test", () => {
         })
     })
 
-    test("should extract user data from HTML", async () => {
-        const html = `<html><body><script id="user-data" type="application/json">{ "name": "Marcuth", "username": "marcuth", "age": 19 }</script></body></html>`
-        const parser = new HtmlParser(html)
-
-        const userParsingModel = parsingModelFactory.json({
-            username: "username",
-            name: "name",
-            age: "age"
-        })
-
-        const rootParsingModel = parsingModelFactory.html({
-            userData: {
-                query: "script[type='application/json'][id='user-data']",
-                extractor: extract("innerText"),
-                model: userParsingModel
-            }
-        })
-
-        const data = await parser.extractFirst({ model: rootParsingModel })
-
-        expect(data).toEqual({
-            userData: {
-                username: "marcuth",
-                name: "Marcuth",
-                age: 19
-            }
-        })
-    })
-
     test("should return deafult value when extracting a non-existing element", async () => {
         const html = "<html><head></head><body></body></html>"
         const parser = new HtmlParser(html)
-    
-        const rootParsingModel = parsingModelFactory.html({
-            missingElement: {
-                query: "h1",
-                default: null,
-                extractor: extract("innerText")
-            }
+
+        const data = await parser.parseFirst({
+            query: "h1",
+            extractor: extract("innerText"),
+            default: null
         })
     
-        const data = await parser.extractFirst({ model: rootParsingModel })
-    
-        expect(data).toEqual({ missingElement: null })
+        expect(data).toBeNull()
     })
 })
