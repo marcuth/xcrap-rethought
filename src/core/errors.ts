@@ -30,3 +30,9 @@ export class FieldNotFoundError extends Error {
         super(`Field with key "${key}" not found`)
     }
 }
+
+export class ExtractorNotFoundError extends Error {
+    constructor(name: string) {
+        super(`Extractor with name "${name}" not found`)
+    }
+}

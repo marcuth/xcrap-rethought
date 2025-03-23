@@ -26,7 +26,7 @@ export type AxiosClientOptions = BaseClientOptions<AxiosProxyConfig> & {
 export class AxiosClient extends BaseClient<AxiosProxyConfig> implements Client {
     protected readonly axiosInstance: AxiosInstance
     protected readonly rateLimitedInstance: RateLimitedAxiosInstance
-    protected readonly interceptors: AxiosInterceptors
+    readonly interceptors: AxiosInterceptors
 
     constructor(options: AxiosClientOptions = {}) {
         super(options)
