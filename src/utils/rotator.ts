@@ -1,7 +1,7 @@
 import { EmptyArrayError } from "../core/errors"
 
 export class Rotator {
-    current = 0
+    currentIndex = 0
 
     constructor(readonly values: string[]) {
         if (values.length === 0) {
@@ -9,8 +9,12 @@ export class Rotator {
         }
     }
 
+    get current() {
+        return this.values[this.currentIndex]
+    }
+
     rotate() {
-        this.current = (this.current + 1) % this.values.length
-        return this.values[this.current]
+        this.currentIndex = (this.currentIndex + 1) % this.values.length
+        return this.values[this.currentIndex]
     }
 }

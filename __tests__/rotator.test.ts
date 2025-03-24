@@ -16,6 +16,6 @@ describe("Rotator", () => {
 
     test("should start at the first element", () => {
         const rotator = new Rotator(["X", "Y", "Z"])
-        expect(rotator.values[rotator.current]).toBe("X")
+        expect(rotator.current).toBe("X")
     })
 })
