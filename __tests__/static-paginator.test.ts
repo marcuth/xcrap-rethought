@@ -1,4 +1,4 @@
-import { InvalidUrlError, PageOutOfRangeError } from "../src/core/errors"
+import { HTMLElementNotFoundError, InvalidPageValueError, InvalidUrlError, PageOutOfRangeError, PageParsingFailureError } from "../src/core/errors"
 import { Client } from "../src/http"
 import { StaticPaginator, Tracker } from "../src/utils/static-paginator"
 
@@ -119,7 +119,9 @@ describe("StaticPaginator.createWithTracking", () => {
         }
     })
 
-    it("deve criar o paginator com as páginas corretas a partir do tracking", async () => {
+    it("should create the paginator with the correct pages from tracking", async () => {
+        mockParser.parseFirst.mockResolvedValueOnce("1").mockResolvedValueOnce("10")
+
         const { paginator } = await StaticPaginator.createWithTracking({
             client: mockClient,
             request: { url: "https://example.com" },
@@ -133,7 +135,9 @@ describe("StaticPaginator.createWithTracking", () => {
         expect(paginator.currentPage).toBe(1)
     })
 
-    it("deve chamar o fetch do cliente HTTP com os parâmetros corretos", async () => {
+    it("should call the HTTP client's fetch with the correct parameters", async () => {
+        mockParser.parseFirst.mockResolvedValueOnce("1").mockResolvedValueOnce("10")
+
         await StaticPaginator.createWithTracking({
             client: mockClient,
             request: { url: "https://example.com" },
@@ -144,22 +148,22 @@ describe("StaticPaginator.createWithTracking", () => {
         expect(mockClient.fetch).toHaveBeenCalledWith({ url: "https://example.com" })
     })
 
-    it("deve usar o parser corretamente para extrair as páginas", async () => {
-        mockParser.parseFirst.mockResolvedValueOnce('1').mockResolvedValueOnce("10")
-        
-        const { paginator } = await StaticPaginator.createWithTracking({
+    it("should use the parser correctly to extract the pages", async () => {
+        mockParser.parseFirst.mockResolvedValueOnce("1").mockResolvedValueOnce("10")
+
+        const {} = await StaticPaginator.createWithTracking({
             client: mockClient,
             request: { url: "https://example.com" },
             templateUrl: "https://example.com/pages?page={page}",
-            trackers,
-        });
+            trackers: trackers,
+        })
 
-        expect(mockParser.parseFirst).toHaveBeenCalledWith(trackers.currentPage);
-        expect(mockParser.parseFirst).toHaveBeenCalledWith(trackers.lastPage);
+        expect(mockParser.parseFirst).toHaveBeenCalledWith(trackers.currentPage)
+        expect(mockParser.parseFirst).toHaveBeenCalledWith(trackers.lastPage)
     })
 
-    it("deve lançar um erro se o cliente falhar ao buscar os dados", async () => {
-        mockClient.fetch.mockRejectedValueOnce(new Error('Request failed'))
+    it("should throw an error if the client fails to fetch the data", async () => {
+        mockClient.fetch.mockRejectedValueOnce(new Error("Request failed"))
 
         await expect(StaticPaginator.createWithTracking({
             client: mockClient,
@@ -169,7 +173,7 @@ describe("StaticPaginator.createWithTracking", () => {
         })).rejects.toThrow("Request failed")
     })
 
-    it("deve usar os transformadores corretamente ao extrair as páginas", async () => {
+    it("should use the transformers correctly when extracting the pages", async () => {
         const currentPageTransformer = jest.fn().mockReturnValue(5)
         const lastPageTransformer = jest.fn().mockReturnValue(15)
 
@@ -191,14 +195,31 @@ describe("StaticPaginator.createWithTracking", () => {
         expect(paginator.lastPage).toBe(15)
     })
 
-    it("deve lançar um erro se os trackers não retornarem valores válidos", async () => {
+    it("should throw an error if the trackers return undefined or null", async () => {
         mockParser.parseFirst.mockResolvedValueOnce(undefined).mockResolvedValueOnce(null)
-
+    
         await expect(StaticPaginator.createWithTracking({
             client: mockClient,
             request: { url: "https://example.com" },
             templateUrl: "https://example.com/pages?page={page}",
             trackers: trackers,
-        })).rejects.toThrow("Cannot read property")
+        })).rejects.toThrow(PageParsingFailureError)
+    })
+    
+    it("should throw an error if the transformers return invalid values", async () => {
+        mockParser.parseFirst.mockResolvedValueOnce("1").mockResolvedValueOnce("10")
+
+        const currentPageTransformer = jest.fn().mockReturnValue(undefined)
+        const lastPageTransformer = jest.fn().mockReturnValue(undefined)
+    
+        trackers.currentPage.transformer = currentPageTransformer
+        trackers.lastPage.transformer = lastPageTransformer
+    
+        await expect(StaticPaginator.createWithTracking({
+            client: mockClient,
+            request: { url: "https://example.com" },
+            templateUrl: "https://example.com/pages?page={page}",
+            trackers: trackers,
+        })).rejects.toThrow(InvalidPageValueError)
     })
 })

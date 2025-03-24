@@ -1,4 +1,4 @@
-import { InvalidUrlError, PageOutOfRangeError } from "../core/errors"
+import { InvalidPageValueError, InvalidUrlError, PageOutOfRangeError, PageParsingFailureError } from "../core/errors"
 import { Client, ClientRequestOptions } from "../http"
 import { ExtractorFunction } from "../parser"
 
@@ -58,15 +58,22 @@ export class StaticPaginator {
         const response = await client.fetch(request)
         const parser = response.asHtmlParser()
         const currentPageRaw = await parser.parseFirst(trackers.currentPage)
-        const currentPageTransformed = (trackers.currentPage.transformer || Number)(currentPageRaw)
         const lastPageRaw = await parser.parseFirst(trackers.lastPage)
-        const lastPageTransformed = (trackers.lastPage.transformer || Number)(lastPageRaw)
 
-        console.log(currentPageTransformed, lastPageTransformed)
+        if (!currentPageRaw || !lastPageRaw) {
+            throw new PageParsingFailureError()
+        }
+
+        const currentPageTransformed = trackers.currentPage.transformer 
+            ? trackers.currentPage.transformer(currentPageRaw)
+            : Number(currentPageRaw)
+
+        const lastPageTransformed = trackers.lastPage.transformer 
+            ? trackers.lastPage.transformer(lastPageRaw)
+            : Number(lastPageRaw)
 
         if (isNaN(currentPageTransformed) || isNaN(lastPageTransformed)) {
-            
-            throw Error()
+            throw new InvalidPageValueError()
         }
 
         return {
