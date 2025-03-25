@@ -1,8 +1,7 @@
-import { TransformerMiddlewareFunction } from "./middlewares"
-import { MiddlewarePipeline } from "./middleware-pipeline"
+export type TransformerFunction = (data: Record<string, any>) =>  any | Promise<any>
 
 export type TransformingModelShape = {
-    [key: string]: TransformerMiddlewareFunction[]
+    [key: string]: TransformerFunction[]
 }
 
 export class TransformingModel {
@@ -11,14 +10,13 @@ export class TransformingModel {
     async transform(data: Record<string, any>): Promise<Record<string, any>> {
         const result: Record<string, any> = {...data}
 
-        await Promise.all(
-            Object.keys(this.shape)
-                .map(async (key) => {
-                    const pipeline = new MiddlewarePipeline(this.shape[key])
-                    const transformedData = await pipeline.execute(data, key, data[key])
-                    Object.assign(result, transformedData)
-                })
-        )
+        for (const key in this.shape) {
+            const transformers = this.shape[key]
+
+            for (const transformer of transformers) {
+                result[key] = await transformer(result)
+            }
+        }
 
         return result
     }
