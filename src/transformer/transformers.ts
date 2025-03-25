@@ -101,7 +101,7 @@ export type TransformOptions<T, R> = {
     condition?: (value: T) => boolean | Promise<boolean>
 }
 
-function transform<T extends any, R extends any>({
+export function transform<T extends any, R extends any>({
     key,
     transformer,
     condition
