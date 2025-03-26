@@ -4,9 +4,11 @@ import { AxiosClient } from "../src/http"
 
 const tagParsingModel = new HtmlParsingModel({
     name: {
+        query: ".tag",
         extractor: extract("innerText")
     },
     pageUrl: {
+        query: ".tag",
         extractor: extract("href", true)
     }
 })
@@ -21,11 +23,11 @@ const quoteParsingModel = new HtmlParsingModel({
         extractor: extract("innerText")
     },
     authorPageUrl: {
-        query: "a:cointains('(about)'))",
-        extractor: extract("innerText")
+        query: "a",
+        extractor: extract("href", true)
     },
     tags: {
-        query: ".tag",
+        query: ".tags",
         multiple: true,
         model: tagParsingModel
     }
