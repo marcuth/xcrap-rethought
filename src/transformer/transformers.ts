@@ -1,3 +1,4 @@
+import { camelCase, capitalCase, dotCase, constantCase, kebabCase, noCase, pascalCase, pascalSnakeCase, pathCase, sentenceCase, snakeCase, trainCase } from "change-case"
 import * as dateFns from "date-fns"
 
 export type FormatCurrencyOptions = {
@@ -11,6 +12,18 @@ export const transformers = {
         trim: (value: string) => value.trim(),
         toUpperCase: (value: string) => value.toUpperCase(),
         toLowerCase: (value: string) => value.toLowerCase(),
+        toCamelCase: camelCase,
+        toCapitalCase: capitalCase,
+        toDotCase: dotCase,
+        toConstantCase: constantCase,
+        toKebabCase: kebabCase,
+        toNoCase: noCase,
+        toPascalCase: pascalCase,
+        toPascalSnakeCase: pascalSnakeCase,
+        toPathCase: pathCase,
+        toSentenceCase: sentenceCase,
+        toSnakeCase: snakeCase,
+        toTrainCase: trainCase,
         toNumber: Number,
         split: (separator: string) => (value: string) => value.split(separator),
         toBoolean: (value: string) => {
@@ -92,6 +105,9 @@ export const validators = {
     string: {
         includes: (str: string) => (value: string) => value.includes(str),
         isNumeric: (value: string) => !isNaN(Number(value))
+    },
+    array: {
+        includes: (item: any) => (value: any[]) => value.includes(item)
     }
 }
 
