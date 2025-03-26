@@ -9,6 +9,14 @@ export namespace DateTansformer {
         return new Date(value)
     }
 
+    export const fromISO = (value: string) => {
+        return dateFns.parseISO(value)
+    }
+
+    export const isValid = (value: Date) => {
+        return dateFns.isValid(value)
+    }
+
     export const toISO = (value: Date) => value.toISOString()
 
     export const toTimestamp = (value: Date) => value.getTime()

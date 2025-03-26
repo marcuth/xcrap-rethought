@@ -1,5 +1,7 @@
 import { camelCase, capitalCase, dotCase, constantCase, kebabCase, noCase, pascalCase, pascalSnakeCase, pathCase, sentenceCase, snakeCase, trainCase } from "change-case"
 
+import { StringValidator } from "../validators/string"
+
 export namespace StringTransformer {
     export const toLowerCase = (value: string) => value.toLowerCase()
 
@@ -34,19 +36,18 @@ export namespace StringTransformer {
     export const split = (separator: string) => (value: string) => value.split(separator)
 
     export const toBoolean = (value: string) => {
+        if (!StringValidator.isBooleanText(value)) {
+            throw new Error(`'${value}' cannot be converted to boolean!`)
+        }
+
         const truthyValues = ["true", "1", "yes"]
-        const falsyValues = ["false", "0", "no"]
         const lowerValue = value.toLowerCase()
 
         if (truthyValues.includes(lowerValue)) {
             return true
         }
 
-        if (falsyValues.includes(lowerValue)) {
-            return false
-        }
-
-        throw new Error(`'${value}' cannot be converted to boolean!`)
+        return false
     }
 
     export const normalize = (value: string) => {
