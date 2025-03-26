@@ -76,4 +76,24 @@ export namespace StringTransformer {
 
         return number
     }
+
+    export const lookupInRecord = (record: Record<string, string>) => {
+        return (value: string) => {
+            if (!(value in record)) {
+              throw new Error(`Record does not have '${value}' as key!`)
+            }
+            
+            return record[value]
+        }
+    }
+
+    export const resolveUrl = (baseUrl: string) => {
+        return (value: string) => {
+            try {
+                return new URL(value, baseUrl).href
+            } catch (error) {
+                throw new Error(`Invalid URL: '${value}' with base '${baseUrl}'`)
+            }
+        }
+    }
 }
